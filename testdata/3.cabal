@@ -1,0 +1,34 @@
+Source-Repository head
+    Type:     darcs
+    Location: http://darcs.wolfgang.jeltsch.info/haskell/3d-graphics-examples/main
+
+Source-Repository this
+    Type:     darcs
+    Location: http://darcs.wolfgang.jeltsch.info/haskell/3d-graphics-examples/main
+    Tag:      3d-graphics-examples-0.0.0.2
+
+Executable mountains
+    Build-Depends:  base   >= 3.0 && < 5,
+                    GLUT   >= 2.4 && < 2.8,
+                    OpenGL >= 2.8 && < 3.1,
+                    random >= 1.0 && < 1.2
+    Extensions:     FlexibleContexts
+    Main-Is:        Mountains.hs
+    Other-Modules:  Utilities
+    HS-Source-Dirs: src src/mountains
+
+Executable l-systems
+    Build-Depends:  base   >= 3.0 && < 5,
+                    GLUT   >= 2.4 && < 2.8,
+                    OpenGL >= 2.8 && < 3.1
+    Extensions:     FlexibleContexts
+    Main-Is:        LSystems.hs
+    Other-Modules:  Utilities
+                    ConiferLSystem
+                    IslandLSystem
+                    KochLSystem
+                    LSystem
+                    TreeLSystem
+                    Turtle
+    HS-Source-Dirs: src src/l-systems
+

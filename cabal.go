@@ -6,8 +6,39 @@ import (
 	"strings"
 )
 
+type SourceRepository struct {
+	Type     string
+	Location string
+	Tag      string
+}
+
+type Executable struct {
+	BuildDepends []string
+	Extensions   []string
+	MainIs       string
+	OtherModules []string
+	HSSourceDirs []string
+}
+
 type CabalPackage struct {
-	Name string
+	Name         string
+	Version      string
+	CabalVersion string
+	BuildType    string
+	License      string
+	LicenseFile  string
+	Copyright    []string
+	Author       string
+	Maintainer   string
+	Stability    string
+	Homepage     string
+	PackageURL   string
+	Synopsis     []string
+	Description  []string
+	Category     string
+	TestedWith   string
+	Repositories map[string]*SourceRepository
+	Executables  map[string]*Executable
 }
 
 type Parser interface {

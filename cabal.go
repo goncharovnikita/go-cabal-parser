@@ -1,9 +1,7 @@
 package gocabalparser
 
 import (
-	"bufio"
 	"io"
-	"strings"
 )
 
 type SourceRepository struct {
@@ -52,23 +50,10 @@ func NewParser() Parser {
 }
 
 func (p *parser) ParseReader(r io.Reader) (*CabalPackage, error) {
-	s := bufio.NewScanner(r)
-
-	res := &CabalPackage{}
-
-	for s.Scan() {
-
-	}
-
-	if err := s.Err(); err != nil {
+	tokens, err := newTokenizer().TokenizeReader(r)
+	if err != nil {
 		return nil, err
 	}
 
-	return res, nil
-}
-
-func (p *parser) parseLine(l string) {
-	if strings.HasPrefix(l, "Name:") {
-
-	}
+	return newTokensParser().Parse(tokens)
 }

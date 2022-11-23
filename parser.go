@@ -6,13 +6,6 @@ import (
 	"strings"
 )
 
-type parserState int
-
-const (
-	parserStateInit parserState = iota
-	parserStateName
-)
-
 type tokensParser struct{}
 
 func newTokensParser() *tokensParser {

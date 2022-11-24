@@ -6,6 +6,22 @@ import (
 	"strings"
 )
 
+var (
+	repoProperties = map[string]struct{}{
+		"type":     {},
+		"location": {},
+		"tag":      {},
+	}
+
+	executableProperties = map[string]struct{}{
+		"build-depends":  {},
+		"extensions":     {},
+		"main-is":        {},
+		"other-modules":  {},
+		"hs-source-dirs": {},
+	}
+)
+
 type tokensParser struct{}
 
 func newTokensParser() *tokensParser {
@@ -19,7 +35,7 @@ func (p *tokensParser) Parse(tokens []*token) (*CabalPackage, error) {
 	for iterator.Next() {
 		token := iterator.Val()
 
-		if token.Type != tokenName && token.Type != tokenScopeType {
+		if token.Type != tokenTypeKey {
 			return nil, fmt.Errorf("name declaration expected, but got: %s", token.Value)
 		}
 
@@ -88,7 +104,7 @@ func parseString(to *string, iterator *tokensIterator) error {
 	}
 
 	token := iterator.Val()
-	if !isTokenTypeValue(token.Type) {
+	if token.Type != tokenTypeValue {
 		return errors.New("property value expected")
 	}
 
@@ -99,13 +115,13 @@ func parseString(to *string, iterator *tokensIterator) error {
 
 func parseStringArr(to *[]string, iterator *tokensIterator) error {
 	nextToken, ok := iterator.Seek()
-	if !ok || !isTokenTypeValue(nextToken.Type) {
+	if !ok || nextToken.Type != tokenTypeValue {
 		return errors.New("array value expected")
 	}
 
 	for {
 		token, ok := iterator.Seek()
-		if !ok || !isTokenTypeValue(token.Type) {
+		if !ok || token.Type != tokenTypeValue {
 			break
 		}
 
@@ -122,7 +138,7 @@ func parseRepository(to map[string]*SourceRepository, iterator *tokensIterator) 
 	}
 
 	token := iterator.Val()
-	if token.Type != tokenScopeName {
+	if token.Type != tokenTypeScopeName {
 		return errors.New("repository name expected")
 	}
 
@@ -131,7 +147,7 @@ func parseRepository(to map[string]*SourceRepository, iterator *tokensIterator) 
 
 	for {
 		token, ok := iterator.Seek()
-		if !ok || token.Type != tokenScopeValueName {
+		if !ok || !isRepoProperty(token) {
 			break
 		}
 
@@ -147,7 +163,7 @@ func parseRepository(to map[string]*SourceRepository, iterator *tokensIterator) 
 		case "tag":
 			err = parseString(&repo.Tag, iterator)
 		default:
-			return fmt.Errorf("unsupported repo property: %s", token.Value)
+			return fmt.Errorf("unsupported repo property: '%s'", token.Value)
 		}
 
 		if err != nil {
@@ -166,7 +182,7 @@ func parseExecutable(to map[string]*Executable, iterator *tokensIterator) error 
 	}
 
 	token := iterator.Val()
-	if token.Type != tokenScopeName {
+	if token.Type != tokenTypeScopeName {
 		return errors.New("executable name expected")
 	}
 
@@ -175,7 +191,7 @@ func parseExecutable(to map[string]*Executable, iterator *tokensIterator) error 
 
 	for {
 		token, ok := iterator.Seek()
-		if !ok || token.Type != tokenScopeValueName {
+		if !ok || !isExecutableProperty(token) {
 			break
 		}
 
@@ -195,7 +211,7 @@ func parseExecutable(to map[string]*Executable, iterator *tokensIterator) error 
 		case "hs-source-dirs":
 			err = parseStringArr(&ex.HSSourceDirs, iterator)
 		default:
-			return fmt.Errorf("unsupported executable property: %s", token.Value)
+			return fmt.Errorf("unsupported executable property: '%s'", token.Value)
 		}
 
 		if err != nil {
@@ -208,6 +224,22 @@ func parseExecutable(to map[string]*Executable, iterator *tokensIterator) error 
 	return nil
 }
 
-func isTokenTypeValue(t tokenType) bool {
-	return t == tokenValue || t == tokenScopeValueValue
+func isRepoProperty(t *token) bool {
+	if t.Type != tokenTypeKey {
+		return false
+	}
+
+	_, ok := repoProperties[strings.ToLower(t.Value)]
+
+	return ok
+}
+
+func isExecutableProperty(t *token) bool {
+	if t.Type != tokenTypeKey {
+		return false
+	}
+
+	_, ok := executableProperties[strings.ToLower(t.Value)]
+
+	return ok
 }

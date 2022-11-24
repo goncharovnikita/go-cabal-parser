@@ -9,28 +9,19 @@ import (
 type tokenType int
 
 const (
-	tokenName tokenType = iota
-	tokenValue
-	tokenScopeType
-	tokenScopeName
-	tokenScopeValueName
-	tokenScopeValueValue
+	tokenTypeKey tokenType = iota
+	tokenTypeValue
+	tokenTypeScopeName
 )
 
 func (t tokenType) String() string {
 	switch t {
-	case tokenName:
-		return "Name"
-	case tokenValue:
+	case tokenTypeKey:
+		return "Key"
+	case tokenTypeValue:
 		return "Value"
-	case tokenScopeType:
-		return "ScopeType"
-	case tokenScopeName:
+	case tokenTypeScopeName:
 		return "ScopeName"
-	case tokenScopeValueName:
-		return "ScopeValueName"
-	case tokenScopeValueValue:
-		return "ScopeValueValue"
 	default:
 		return fmt.Sprintf("unknown token: %d", t)
 	}
@@ -150,7 +141,7 @@ func (t *tokenizer) TokenizeReader(r io.Reader) (tokens, error) {
 					case ':':
 						{
 							t := &token{
-								Type:  tokenName,
+								Type:  tokenTypeKey,
 								Value: string(val),
 							}
 
@@ -161,7 +152,7 @@ func (t *tokenizer) TokenizeReader(r io.Reader) (tokens, error) {
 					case ' ':
 						{
 							t := &token{
-								Type:  tokenScopeType,
+								Type:  tokenTypeKey,
 								Value: string(val),
 							}
 
@@ -188,7 +179,7 @@ func (t *tokenizer) TokenizeReader(r io.Reader) (tokens, error) {
 				{
 					if v == '\n' {
 						t := &token{
-							Type:  tokenValue,
+							Type:  tokenTypeValue,
 							Value: string(val),
 						}
 
@@ -204,7 +195,7 @@ func (t *tokenizer) TokenizeReader(r io.Reader) (tokens, error) {
 				{
 					if v == '\n' {
 						t := &token{
-							Type:  tokenScopeName,
+							Type:  tokenTypeScopeName,
 							Value: string(val),
 						}
 
@@ -243,7 +234,7 @@ func (t *tokenizer) TokenizeReader(r io.Reader) (tokens, error) {
 					case ':':
 						{
 							t := &token{
-								Type:  tokenScopeValueName,
+								Type:  tokenTypeKey,
 								Value: string(val),
 							}
 
@@ -254,7 +245,7 @@ func (t *tokenizer) TokenizeReader(r io.Reader) (tokens, error) {
 					case '\n':
 						{
 							t := &token{
-								Type:  tokenScopeValueValue,
+								Type:  tokenTypeValue,
 								Value: string(val),
 							}
 
@@ -279,7 +270,7 @@ func (t *tokenizer) TokenizeReader(r io.Reader) (tokens, error) {
 				{
 					if v == '\n' || v == ',' {
 						t := &token{
-							Type:  tokenScopeValueValue,
+							Type:  tokenTypeValue,
 							Value: string(val),
 						}
 

@@ -156,11 +156,27 @@ func TestTokensParser(t *testing.T) {
 			expected: &CabalPackage{
 				Executables: map[string]*Executable{
 					"mountains": {
-						BuildDepends: []string{
-							"base   >= 3.0 && < 5",
-							"GLUT   >= 2.4 && < 2.8",
-							"OpenGL >= 2.8 && < 3.1",
-							"random >= 1.0 && < 1.2",
+						BuildDepends: []*Dependency{
+							{
+								Name:               "base",
+								GreaterOrEqualThan: 3.0,
+								LessThan:           5,
+							},
+							{
+								Name:               "GLUT",
+								GreaterOrEqualThan: 2.4,
+								LessThan:           2.8,
+							},
+							{
+								Name:               "OpenGL",
+								GreaterOrEqualThan: 2.8,
+								LessThan:           3.1,
+							},
+							{
+								Name:               "random",
+								GreaterOrEqualThan: 1.0,
+								LessThan:           1.2,
+							},
 						},
 						Extensions: []string{
 							"FlexibleContexts",
@@ -174,10 +190,22 @@ func TestTokensParser(t *testing.T) {
 						},
 					},
 					"l-systems": {
-						BuildDepends: []string{
-							"base   >= 3.0 && < 5",
-							"GLUT   >= 2.4 && < 2.8",
-							"OpenGL >= 2.8 && < 3.1",
+						BuildDepends: []*Dependency{
+							{
+								Name:               "base",
+								GreaterOrEqualThan: 3.0,
+								LessThan:           5,
+							},
+							{
+								Name:               "GLUT",
+								GreaterOrEqualThan: 2.4,
+								LessThan:           2.8,
+							},
+							{
+								Name:               "OpenGL",
+								GreaterOrEqualThan: 2.8,
+								LessThan:           3.1,
+							},
 						},
 						Extensions: []string{
 							"FlexibleContexts",

@@ -22,10 +22,11 @@ func (p *dependenciesParser) ParseString(s string) (*Dependency, error) {
 
 	var (
 		sign string
-		gt   float64
-		gte  float64
-		lt   float64
-		lte  float64
+		eq   string
+		gt   string
+		gte  string
+		lt   string
+		lte  string
 	)
 
 	for _, v := range chunks[1:] {
@@ -35,7 +36,7 @@ func (p *dependenciesParser) ParseString(s string) (*Dependency, error) {
 
 		if sign == "" {
 			switch v {
-			case ">", ">=", "<", "<=":
+			case "==", ">", ">=", "<", "<=":
 				sign = v
 			default:
 				return nil, fmt.Errorf("unexpected token: %s", v)
@@ -46,33 +47,15 @@ func (p *dependenciesParser) ParseString(s string) (*Dependency, error) {
 
 		switch sign {
 		case ">":
-			v, err := parseFloat64(v)
-			if err != nil {
-				return nil, fmt.Errorf("expected valid float: %v", err)
-			}
-
 			gt = v
 		case ">=":
-			v, err := parseFloat64(v)
-			if err != nil {
-				return nil, fmt.Errorf("expected valid float: %v", err)
-			}
-
 			gte = v
 		case "<":
-			v, err := parseFloat64(v)
-			if err != nil {
-				return nil, fmt.Errorf("expected valid float: %v", err)
-			}
-
 			lt = v
 		case "<=":
-			v, err := parseFloat64(v)
-			if err != nil {
-				return nil, fmt.Errorf("expected valid float: %v", err)
-			}
-
 			lte = v
+		case "==":
+			eq = v
 		default:
 			return nil, fmt.Errorf("unexpected sign: %s", sign)
 		}
@@ -80,21 +63,22 @@ func (p *dependenciesParser) ParseString(s string) (*Dependency, error) {
 		sign = ""
 	}
 
-	if gt > 0 && gte > 0 {
+	if gt != "" && gte != "" {
 		return nil, fmt.Errorf("gt and gte simultaneous declaration")
 	}
 
-	if lt > 0 && lte > 0 {
+	if lt != "" && lte != "" {
 		return nil, fmt.Errorf("gt and gte simultaneous declaration")
 	}
 
 	return &Dependency{
-		Name:               chunks[0],
-		IsLatest:           gt == 0 && gte == 0 && lt == 0 && lte == 0,
-		GreaterThan:        gt,
-		GreaterOrEqualThan: gte,
-		LessThan:           lt,
-		LessOrEqualThan:    lte,
+		Name:     chunks[0],
+		IsLatest: eq != "" && gt != "" && gte != "" && lt != "" && lte != "",
+		Eq:       eq,
+		Gt:       gt,
+		Gte:      gte,
+		Lt:       lt,
+		Lte:      lte,
 	}, nil
 }
 

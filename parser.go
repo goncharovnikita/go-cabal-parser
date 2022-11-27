@@ -20,6 +20,20 @@ var (
 		"other-modules":  {},
 		"hs-source-dirs": {},
 	}
+
+	libraryProperties = map[string]struct{}{
+		"build-depends":      {},
+		"default-language":   {},
+		"other-extensions":   {},
+		"exposed-modules":    {},
+		"reexported-modules": {},
+		"other-modules":      {},
+		"c-sources":          {},
+		"cmm-sources":        {},
+		"include-dirs":       {},
+		"includes":           {},
+		"install-includes":   {},
+	}
 )
 
 type tokensParser struct{}
@@ -36,7 +50,7 @@ func (p *tokensParser) Parse(tokens []*token) (*CabalPackage, error) {
 		token := iterator.Val()
 
 		if token.Type != tokenTypeKey {
-			return nil, fmt.Errorf("name declaration expected, but got: %s", token.Value)
+			continue
 		}
 
 		var err error
@@ -86,8 +100,12 @@ func (p *tokensParser) Parse(tokens []*token) (*CabalPackage, error) {
 			}
 
 			err = parseExecutable(res.Executables, iterator)
+		case "library":
+			res.Library = &Library{}
+
+			err = parseLibrary(res.Library, iterator)
 		default:
-			return nil, fmt.Errorf("unsupported property: %s", token.Value)
+			break
 		}
 
 		if err != nil {
@@ -245,6 +263,36 @@ func parseExecutable(to map[string]*Executable, iterator *tokensIterator) error 
 	return nil
 }
 
+func parseLibrary(to *Library, iterator *tokensIterator) error {
+	if !iterator.Next() {
+		return errors.New("executable name expected")
+	}
+
+	for {
+		token, ok := iterator.Seek()
+		if !ok || !isLibraryProperty(token) {
+			break
+		}
+
+		iterator.Next()
+
+		var err error
+
+		switch strings.ToLower(token.Value) {
+		case "build-depends":
+			err = parseDependencies(&to.BuildDepends, iterator)
+		default:
+			continue
+		}
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func isRepoProperty(t *token) bool {
 	if t.Type != tokenTypeKey {
 		return false
@@ -261,6 +309,16 @@ func isExecutableProperty(t *token) bool {
 	}
 
 	_, ok := executableProperties[strings.ToLower(t.Value)]
+
+	return ok
+}
+
+func isLibraryProperty(t *token) bool {
+	if t.Type != tokenTypeKey {
+		return false
+	}
+
+	_, ok := libraryProperties[strings.ToLower(t.Value)]
 
 	return ok
 }

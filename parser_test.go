@@ -158,24 +158,24 @@ func TestTokensParser(t *testing.T) {
 					"mountains": {
 						BuildDepends: []*Dependency{
 							{
-								Name:               "base",
-								GreaterOrEqualThan: 3.0,
-								LessThan:           5,
+								Name: "base",
+								Gte:  "3.0",
+								Lt:   "5",
 							},
 							{
-								Name:               "GLUT",
-								GreaterOrEqualThan: 2.4,
-								LessThan:           2.8,
+								Name: "GLUT",
+								Gte:  "2.4",
+								Lt:   "2.8",
 							},
 							{
-								Name:               "OpenGL",
-								GreaterOrEqualThan: 2.8,
-								LessThan:           3.1,
+								Name: "OpenGL",
+								Gte:  "2.8",
+								Lt:   "3.1",
 							},
 							{
-								Name:               "random",
-								GreaterOrEqualThan: 1.0,
-								LessThan:           1.2,
+								Name: "random",
+								Gte:  "1.0",
+								Lt:   "1.2",
 							},
 						},
 						Extensions: []string{
@@ -192,19 +192,19 @@ func TestTokensParser(t *testing.T) {
 					"l-systems": {
 						BuildDepends: []*Dependency{
 							{
-								Name:               "base",
-								GreaterOrEqualThan: 3.0,
-								LessThan:           5,
+								Name: "base",
+								Gte:  "3.0",
+								Lt:   "5",
 							},
 							{
-								Name:               "GLUT",
-								GreaterOrEqualThan: 2.4,
-								LessThan:           2.8,
+								Name: "GLUT",
+								Gte:  "2.4",
+								Lt:   "2.8",
 							},
 							{
-								Name:               "OpenGL",
-								GreaterOrEqualThan: 2.8,
-								LessThan:           3.1,
+								Name: "OpenGL",
+								Gte:  "2.8",
+								Lt:   "3.1",
 							},
 						},
 						Extensions: []string{
@@ -225,6 +225,19 @@ func TestTokensParser(t *testing.T) {
 						},
 					},
 				},
+			},
+		},
+		{
+			name: "ignore unsupported fields",
+			tokens: tokens{
+				testMakeToken(tokenTypeKey, "Name"),
+				testMakeToken(tokenTypeValue, "Lib"),
+				testMakeToken(tokenTypeKey, "extra-tmp-files"),
+				testMakeToken(tokenTypeValue, "base.c"),
+				testMakeToken(tokenTypeKey, "abc.h"),
+			},
+			expected: &CabalPackage{
+				Name: "Lib",
 			},
 		},
 	}

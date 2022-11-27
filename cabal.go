@@ -10,8 +10,17 @@ type SourceRepository struct {
 	Tag      string
 }
 
+type Dependency struct {
+	Name               string
+	IsLatest           bool
+	GreaterThan        float64
+	GreaterOrEqualThan float64
+	LessThan           float64
+	LessOrEqualThan    float64
+}
+
 type Executable struct {
-	BuildDepends []string
+	BuildDepends []*Dependency
 	Extensions   []string
 	MainIs       string
 	OtherModules []string

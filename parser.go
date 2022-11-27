@@ -132,6 +132,27 @@ func parseStringArr(to *[]string, iterator *tokensIterator) error {
 	return nil
 }
 
+func parseDependencies(to *[]*Dependency, iterator *tokensIterator) error {
+	stringDeps := make([]string, 0)
+
+	if err := parseStringArr(&stringDeps, iterator); err != nil {
+		return err
+	}
+
+	p := newDependenciesParser()
+
+	for _, d := range stringDeps {
+		dep, err := p.ParseString(d)
+		if err != nil {
+			return err
+		}
+
+		*to = append(*to, dep)
+	}
+
+	return nil
+}
+
 func parseRepository(to map[string]*SourceRepository, iterator *tokensIterator) error {
 	if !iterator.Next() {
 		return errors.New("repository name expected")
@@ -201,7 +222,7 @@ func parseExecutable(to map[string]*Executable, iterator *tokensIterator) error 
 
 		switch strings.ToLower(token.Value) {
 		case "build-depends":
-			err = parseStringArr(&ex.BuildDepends, iterator)
+			err = parseDependencies(&ex.BuildDepends, iterator)
 		case "extensions":
 			err = parseStringArr(&ex.Extensions, iterator)
 		case "main-is":

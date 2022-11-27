@@ -63,24 +63,24 @@ func TestParse(t *testing.T) {
 					"mountains": {
 						BuildDepends: []*Dependency{
 							{
-								Name:               "base",
-								GreaterOrEqualThan: 3.0,
-								LessThan:           5,
+								Name: "base",
+								Gte:  "3.0",
+								Lt:   "5",
 							},
 							{
-								Name:               "GLUT",
-								GreaterOrEqualThan: 2.4,
-								LessThan:           2.8,
+								Name: "GLUT",
+								Gte:  "2.4",
+								Lt:   "2.8",
 							},
 							{
-								Name:               "OpenGL",
-								GreaterOrEqualThan: 2.8,
-								LessThan:           3.1,
+								Name: "OpenGL",
+								Gte:  "2.8",
+								Lt:   "3.1",
 							},
 							{
-								Name:               "random",
-								GreaterOrEqualThan: 1.0,
-								LessThan:           1.2,
+								Name: "random",
+								Gte:  "1.0",
+								Lt:   "1.2",
 							},
 						},
 						Extensions: []string{
@@ -97,19 +97,19 @@ func TestParse(t *testing.T) {
 					"l-systems": {
 						BuildDepends: []*Dependency{
 							{
-								Name:               "base",
-								GreaterOrEqualThan: 3.0,
-								LessThan:           5,
+								Name: "base",
+								Gte:  "3.0",
+								Lt:   "5",
 							},
 							{
-								Name:               "GLUT",
-								GreaterOrEqualThan: 2.4,
-								LessThan:           2.8,
+								Name: "GLUT",
+								Gte:  "2.4",
+								Lt:   "2.8",
 							},
 							{
-								Name:               "OpenGL",
-								GreaterOrEqualThan: 2.8,
-								LessThan:           3.1,
+								Name: "OpenGL",
+								Gte:  "2.8",
+								Lt:   "3.1",
 							},
 						},
 						Extensions: []string{
@@ -188,24 +188,24 @@ func TestParse(t *testing.T) {
 					"mountains": {
 						BuildDepends: []*Dependency{
 							{
-								Name:               "base",
-								GreaterOrEqualThan: 3.0,
-								LessThan:           5,
+								Name: "base",
+								Gte:  "3.0",
+								Lt:   "5",
 							},
 							{
-								Name:               "GLUT",
-								GreaterOrEqualThan: 2.4,
-								LessThan:           2.8,
+								Name: "GLUT",
+								Gte:  "2.4",
+								Lt:   "2.8",
 							},
 							{
-								Name:               "OpenGL",
-								GreaterOrEqualThan: 2.8,
-								LessThan:           3.1,
+								Name: "OpenGL",
+								Gte:  "2.8",
+								Lt:   "3.1",
 							},
 							{
-								Name:               "random",
-								GreaterOrEqualThan: 1.0,
-								LessThan:           1.2,
+								Name: "random",
+								Gte:  "1.0",
+								Lt:   "1.2",
 							},
 						},
 						Extensions: []string{
@@ -222,19 +222,19 @@ func TestParse(t *testing.T) {
 					"l-systems": {
 						BuildDepends: []*Dependency{
 							{
-								Name:               "base",
-								GreaterOrEqualThan: 3.0,
-								LessThan:           5,
+								Name: "base",
+								Gte:  "3.0",
+								Lt:   "5",
 							},
 							{
-								Name:               "GLUT",
-								GreaterOrEqualThan: 2.4,
-								LessThan:           2.8,
+								Name: "GLUT",
+								Gte:  "2.4",
+								Lt:   "2.8",
 							},
 							{
-								Name:               "OpenGL",
-								GreaterOrEqualThan: 2.8,
-								LessThan:           3.1,
+								Name: "OpenGL",
+								Gte:  "2.8",
+								Lt:   "3.1",
 							},
 						},
 						Extensions: []string{
@@ -257,23 +257,72 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:     "with library",
+			filename: "5.cabal",
+			expected: &CabalPackage{
+				Name:         "base",
+				Version:      "4.17.0.0",
+				CabalVersion: "3.0",
+				BuildType:    "Configure",
+				License:      "BSD-3-Clause",
+				LicenseFile:  "LICENSE",
+				Maintainer:   "libraries@haskell.org",
+				Synopsis: []string{
+					"Basic libraries",
+				},
+				Description: []string{
+					"This package contains the Standard Haskell \"Prelude\" and its support libraries,",
+					"and a large collection of useful libraries ranging from data",
+					"structures to parsing combinators and debugging utilities.",
+				},
+				Category: "Prelude",
+				Repositories: map[string]*SourceRepository{
+					"head": {
+						Type:     "git",
+						Location: "https://gitlab.haskell.org/ghc/ghc.git",
+					},
+				},
+				Library: &Library{
+					BuildDepends: []*Dependency{
+						{
+							Name: "rts",
+							Eq:   "1.0.*",
+						},
+						{
+							Name: "ghc-prim",
+							Gte:  "0.5.1.0",
+							Lt:   "0.10",
+						},
+						{
+							Name: "ghc-bignum",
+							Gte:  "1.0",
+							Lt:   "2.0",
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			f, err := os.Open(fmt.Sprintf("./testdata/%s", tc.filename))
+			f, err := os.Open(fmt.Sprintf("./test/testdata/%s", tc.filename))
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			defer f.Close()
 
-			p, err := NewParser().ParseReader(f)
+			actual, err := NewParser().ParseReader(f)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			if !reflect.DeepEqual(tc.expected, p) {
+			if !reflect.DeepEqual(tc.expected, actual) {
+				t.Logf("expected: %+v", tc.expected)
+				t.Log("p-----p")
+				t.Logf("actual: %+v", actual)
 				t.Fatalf("expected value not equal to actual")
 			}
 		})
@@ -290,7 +339,7 @@ func getTestFiles() ([]*os.File, error) {
 
 	for _, fd := range files {
 		if !fd.IsDir() {
-			f, err := os.Open(fmt.Sprintf("./testdata/%s", fd.Name()))
+			f, err := os.Open(fmt.Sprintf("./test/testdata/%s", fd.Name()))
 			if err != nil {
 				return nil, err
 			}

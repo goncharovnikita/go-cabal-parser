@@ -4,6 +4,10 @@ import (
 	"io"
 )
 
+type Library struct {
+	BuildDepends []*Dependency
+}
+
 type SourceRepository struct {
 	Type     string
 	Location string
@@ -11,12 +15,13 @@ type SourceRepository struct {
 }
 
 type Dependency struct {
-	Name               string
-	IsLatest           bool
-	GreaterThan        float64
-	GreaterOrEqualThan float64
-	LessThan           float64
-	LessOrEqualThan    float64
+	Name     string
+	IsLatest bool
+	Eq       string
+	Gt       string
+	Gte      string
+	Lt       string
+	Lte      string
 }
 
 type Executable struct {
@@ -46,6 +51,7 @@ type CabalPackage struct {
 	TestedWith   string
 	Repositories map[string]*SourceRepository
 	Executables  map[string]*Executable
+	Library      *Library
 }
 
 type Parser interface {

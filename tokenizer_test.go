@@ -227,7 +227,7 @@ func TestTokenizer_tokenizeReader(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			f, err := os.Open(fmt.Sprintf("./testdata/%s", tc.filename))
+			f, err := os.Open(fmt.Sprintf("./test/testdata/%s", tc.filename))
 			if err != nil {
 				t.Fatal(err)
 			}
